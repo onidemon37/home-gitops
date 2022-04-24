@@ -26,12 +26,12 @@ variable "interface_2" {
 
 variable "memory" {
   type = string
-  default = "1024"
+  default = "2048"
 }
 
 variable "vcpu" {
   type    = number
-  default = 1
+  default = 2
 }
 variable "ips" {
   type    = list
