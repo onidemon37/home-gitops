@@ -1,8 +1,4 @@
 ---
-- include: locale.yml
-  tags:
-    - locale
-
 - include: packages.yml
   tags:
     - packages
@@ -14,7 +10,3 @@
 - include: filesystem.yml
   tags:
     - filesystem
-
-- include: user.yml
-  tags:
-    - user

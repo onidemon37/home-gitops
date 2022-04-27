@@ -26,7 +26,7 @@ variable "interface_2" {
 
 variable "memory" {
   type = string
-  default = "2048"
+  default = "4096"
 }
 
 variable "vcpu" {
