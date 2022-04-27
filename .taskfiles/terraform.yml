@@ -5,18 +5,42 @@ tasks:
 
   init:cloudflare:
     desc: Initialize terraform
-    dir: provision/terraform/cloudflare
+    dir: ./terraform/cloudflare
     cmds:
       - "terraform init"
 
   plan:cloudflare:
     desc: Prepare all the k8s nodes for running k3s
-    dir: provision/terraform/cloudflare
+    dir: ./terraform/cloudflare
     cmds:
       - "terraform plan"
 
   apply:cloudflare:
     desc: Prepare all the k8s nodes for running k3s
-    dir: provision/terraform/cloudflare
+    dir: ./terraform/cloudflare
     cmds:
       - "terraform apply"
+
+  init:cluster:
+    desc: Initialize terraform
+    dir: ./terraform/cluster
+    cmds:
+      - "terraform init"
+
+  plan:cluster:
+    desc: Plan all the k8s cluster nodes for running k3s
+    dir: ./terraform/cluster
+    cmds:
+      - "terraform plan"
+
+  apply:cluster:
+    desc: Create all the k8s cluster nodes for running k3s
+    dir: ./terraform/cluster
+    cmds:
+      - "terraform apply"
+
+  destroy:cluster:
+    desc: Create all the k8s cluster nodes for running k3s
+    dir: ./terraform/cluster
+    cmds:
+      - "terraform destroy"

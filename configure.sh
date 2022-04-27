@@ -62,12 +62,12 @@ main() {
         sops --encrypt --in-place "${PROJECT_DIR}/cluster/apps/networking/external-dns/secret.sops.yaml"
         # generate terraform secrets
         envsubst < "${PROJECT_DIR}/tmpl/terraform/secret.sops.yaml" \
-            > "${PROJECT_DIR}/provision/terraform/cloudflare/secret.sops.yaml"
+            > "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
         # encrypt terraform secrets
-        sops --encrypt --in-place "${PROJECT_DIR}/provision/terraform/cloudflare/secret.sops.yaml"
+        sops --encrypt --in-place "${PROJECT_DIR}/terraform/cloudflare/secret.sops.yaml"
         # generate ansible settings
         envsubst < "${PROJECT_DIR}/tmpl/ansible/kube-vip.yml" \
-            > "${PROJECT_DIR}/provision/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
+            > "${PROJECT_DIR}/ansible/inventory/group_vars/kubernetes/kube-vip.yml"
         # generate ansible hosts file and secrets
         generate_ansible_hosts
         generate_ansible_host_secrets
@@ -304,8 +304,8 @@ generate_ansible_host_secrets() {
             printf "kind: Secret\n"
             printf "ansible_user: %s\n" "${!node_username}"
             printf "ansible_become_pass: %s\n" "${!node_password}"
-        } > "${PROJECT_DIR}/provision/ansible/inventory/host_vars/${node_hostname}.sops.yml"
-        sops --encrypt --in-place "${PROJECT_DIR}/provision/ansible/inventory/host_vars/${node_hostname}.sops.yml"
+        } > "${PROJECT_DIR}/ansible/inventory/host_vars/${node_hostname}.sops.yml"
+        sops --encrypt --in-place "${PROJECT_DIR}/ansible/inventory/host_vars/${node_hostname}.sops.yml"
     done
 }
 
@@ -358,7 +358,7 @@ generate_ansible_hosts() {
                 fi
             done
         fi
-    } > "${PROJECT_DIR}/provision/ansible/inventory/hosts.yml"
+    } > "${PROJECT_DIR}/ansible/inventory/hosts.yml"
 }
 
 _log() {

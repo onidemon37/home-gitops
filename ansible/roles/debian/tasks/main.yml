@@ -1,0 +1,12 @@
+---
+- include: packages.yml
+  tags:
+    - packages
+
+- include: network.yml
+  tags:
+    - network
+
+- include: filesystem.yml
+  tags:
+    - filesystem
