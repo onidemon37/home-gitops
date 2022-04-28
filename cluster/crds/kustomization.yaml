@@ -5,5 +5,5 @@ resources:
   - cert-manager
   - system-upgrade-controller
   - kube-prometheus-stack
-  #- traefik
-  #- kyverno
+  - traefik
+  - kyverno
