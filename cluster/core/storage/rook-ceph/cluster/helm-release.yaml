@@ -28,13 +28,18 @@ spec:
     monitoring:
       enabled: true
       createPrometheusRules: true
+    dashboard:
+      enabled: true
+      ssl: true
+      urlPrefix: /ceph-dashboard
+      port: 8443
     ingress:
       dashboard:
         annotations:
           kubernetes.io/ingress.class: "traefik"
         host:
           name: &host "rook.${SECRET_PUBLIC_DOMAIN}"
-          path: "/"
+          path: "/ceph-dashboard(/|$)(.*)"
         tls:
           - hosts:
               - *host
