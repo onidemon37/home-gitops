@@ -23,7 +23,7 @@ spec:
       pullPolicy: IfNotPresent
     nfs:
       server: 192.168.37.53
-      path: "/srv/library/k8s"
+      path: "/srv/backup/k8s"
     storageClass:
       name: nfs-client-external
       allowVolumeExpansion: true
