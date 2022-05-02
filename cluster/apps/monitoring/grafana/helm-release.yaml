@@ -132,6 +132,6 @@ spec:
             - "grafana.${SECRET_DOMAIN}"
     persistence:
       enabled: true
-      existingClaim: grafana-config-v1
+      existingClaim: grafana-config
     podAnnotations:
       configmap.reloader.stakater.com/reload: "grafana"

@@ -1,0 +1,19 @@
+#---
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: grafana-config-v1
+#  namespace: monitoring
+#spec:
+#  accessModes:
+#    - ReadWriteOnce
+#  capacity:
+#    storage: 1Gi
+#  nfs:
+#    path: /srv/backup/k8s
+#    server: 192.168.37.53
+#  storageClassName: nfsstorage
+#  persistentVolumeReclaimPolicy: Retain
+#  claimRef:
+#    namespace: monitoring
+#    name: grafana-config-v1
