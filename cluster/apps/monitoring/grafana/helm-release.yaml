@@ -18,10 +18,10 @@ spec:
   install:
     createNamespace: true
     remediation:
-      retries: 5
+      retries: 3
   upgrade:
     remediation:
-      retries: 5
+      retries: 3
   values:
     replicas: 1
     env:
@@ -29,13 +29,11 @@ spec:
       GF_PANELS_DISABLE_SANITIZE_HTML: true
       GF_LOG_FILTERS: rendering:debug
       GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
-    #admin:
-    #  existingSecret: grafana-admin-creds
     adminUser: admin
     adminPassword: "${SECRET_GRAFANA_PASSWORD}"
     grafana.ini:
       server:
-        root_url: "https://grafana.${SECRET_DOMAIN}"
+        root_url: "https://grafana.${SECRET_PUBLIC_DOMAIN}"
       paths:
         data: /var/lib/grafana/data
         logs: /var/log/grafana
@@ -54,6 +52,7 @@ spec:
     image:
       repository: grafana/grafana
       tag: 8.3.6
+      sha: ""
       pullPolicy: IfNotPresent
     service:
       enabled: true
@@ -62,6 +61,18 @@ spec:
       targetPort: 3000
         # targetPort: 4181 To be used with a proxy extraContainer
       portName: service
+    ingress:
+      enabled: true
+      ingressClassName: "traefik"
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        cert-manager.io/cluster-issuer: letsencrypt-production
+      hosts:
+        - "grafana.ninhu.xyz"
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - "grafana.ninhu.xyz"
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -78,17 +89,24 @@ spec:
       datasources.yaml:
         apiVersion: 1
         # list of datasources that should be deleted from the database
-        deleteDatasources:
-          - name: Loki
-            orgId: 1
         datasources:
           - name: Prometheus
             type: prometheus
             access: proxy
-            url: "http://192.168.37.216:9090"
+            url: http://192.168.37.216:9090
             isDefault: true
+          - name: Prometheus-1
+            type: prometheus
+            access: proxy
+            url: http://192.168.37.220:9090
+
     dashboards:
       default:
+        # Ref: https://grafana.com/grafana/dashboards/7845
+        #zfs:
+        #  gnetId: 7845
+        #  revision: 4
+        #  datasource: Prometheus
         # Ref: https://grafana.com/grafana/dashboards/14282
         cadvisor:
           gnetId: 14282
@@ -98,7 +116,36 @@ spec:
         node-exporter-full:
           gnetId: 1860
           revision: 26
+          datasource: Prometheus-1
+        # Ref: https://grafana.com/grafana/dashboards/4475
+        traefik:
+          gnetId: 4475
+          revision: 5
+          datasource: Prometheus-1
+        ceph-cluster:
+          gnetId: 2842
+          revision: 14
+          datasource: Prometheus-1
+        # Ref: https://grafana.com/grafana/dashboards/5336
+        ceph-osd:
+          gnetId: 5336
+          revision: 5
+          datasource: Prometheus-1
+        ## Ref: https://grafana.com/grafana/dashboards/5342
+        ceph-pools:
+          gnetId: 5342
+          revision: 5
+          datasource: Prometheus-1
+        speedtest:
+          gnetId: 13665
+          revision: 1
           datasource: Prometheus
+        flux-cluster:
+          url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/cluster.json
+          datasource: Prometheus-1
+        flux-control-plane:
+          url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/control-plane.json
+          datasource: Prometheus-1
     sidecar:
       dashboards:
         enabled: true
@@ -109,26 +156,20 @@ spec:
         enabled: true
         searchNamespace: ALL
     plugins:
+      - natel-discrete-panel
+      - pr0ps-trackmap-panel
       - grafana-piechart-panel
+      - vonage-status-panel
       - grafana-worldmap-panel
       - grafana-clock-panel
+    serviceMonitor:
+      enabled: true
+      create: true
+      autoMount: true
     serviceAccount:
       create: true
       autoMount: true
-    ingress:
-      enabled: true
-      ingressClassName: "traefik"
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        cert-manager.io/cluster-issuer: letsencrypt-production
-      hosts:
-        - "grafana.${SECRET_DOMAIN}"
-      tls:
-        - secretName: grafana-tls
-          hosts:
-            - "grafana.${SECRET_DOMAIN}"
     persistence:
       enabled: false
-      existingClaim: grafana-config
     podAnnotations:
       configmap.reloader.stakater.com/reload: "grafana"
