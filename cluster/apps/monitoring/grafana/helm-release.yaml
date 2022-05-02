@@ -23,8 +23,6 @@ spec:
     remediation:
       retries: 5
   values:
-    ​deploymentStrategy​:
-      type​: Recreate
     replicas: 1
     env:
       GF_EXPLORE_ENABLED: true
@@ -33,6 +31,8 @@ spec:
       GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
     admin:
       existingSecret: grafana-admin-creds
+    adminUser: admin
+    adminPassword: "${SECRET_GRAFANA_PASSWORD}"
     grafana.ini:
       server:
         root_url: "https://grafana.${SECRET_DOMAIN}"
@@ -56,7 +56,13 @@ spec:
       tag: 8.3.6
       sha: ""
       pullPolicy: IfNotPresent
-
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 80
+      targetPort: 3000
+        # targetPort: 4181 To be used with a proxy extraContainer
+      portName: service
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -80,15 +86,24 @@ spec:
           - name: Prometheus
             type: prometheus
             access: proxy
-            url: http://{{ SECRET_PROMETHEUS_SERVER }}:{{ SECRET_PROMETHEUS_PORT }}/
+            url: "http://{SECRET_PROMETHEUS_SERVER}:{SECRET_PROMETHEUS_PORT}"
             isDefault: true
     dashboards:
       default:
+        # Ref: https://grafana.com/grafana/dashboards/14282
+        cadvisor:
+          gnetId: 14282
+          revision: 1
+          datasourse: Prometheus
+        # Ref: https://grafana.com/grafana/dashboards/1860
+        node-exporter-full:
+          gnetId: 1860
+          revision: 26
+          datasource: Prometheus
     sidecar:
       dashboards:
         enabled: true
         searchNamespace: ALL
-        folderAnnotation: grafana_folder
         provider:
           foldersFromFilesStructure: true
       datasources:
@@ -100,17 +115,26 @@ spec:
       - grafana-clock-panel
     serviceMonitor:
       enabled: true
+    serviceAccount:
+      create: true
+      autoMount: true
     ingress:
       enabled: true
       ingressClassName: "traefik"
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        cert-manager.io/cluster-issuer: letsencrypt-production
       hosts:
         - name: &host "grafana.${SECRET_DOMAIN}"
           paths:
             - path: /
               pathType: Prefix
       tls:
-        - hosts:
+        - secretName: grafana-tls
+          hosts:
             - *host
     persistence:
       enabled: true
       existingClaim: grafana-config-v1
+    podAnnotations:
+      configmap.reloader.stakater.com/reload: "grafana"
