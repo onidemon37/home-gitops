@@ -56,11 +56,6 @@ spec:
       pullPolicy: IfNotPresent
     service:
       enabled: true
-      type: ClusterIP
-      port: 80
-      targetPort: 3000
-        # targetPort: 4181 To be used with a proxy extraContainer
-      portName: service
     ingress:
       enabled: true
       ingressClassName: "traefik"
@@ -68,11 +63,11 @@ spec:
         traefik.ingress.kubernetes.io/router.entrypoints: websecure
         cert-manager.io/cluster-issuer: letsencrypt-production
       hosts:
-        - "grafana.ninhu.xyz"
+        - "grafana.${SECRET_DOMAIN}"
       tls:
         - secretName: grafana-tls
           hosts:
-            - "grafana.ninhu.xyz"
+            - "grafana.${SECRET_DOMAIN}"
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
@@ -93,7 +88,7 @@ spec:
           - name: Prometheus
             type: prometheus
             access: proxy
-            url: http://192.168.37.216:9090
+            url: "http://${PROMETHEUS_DATASTORE_RPI}:9090"
             isDefault: true
           - name: Prometheus-1
             type: prometheus
