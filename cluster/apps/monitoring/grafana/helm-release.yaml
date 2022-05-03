@@ -51,7 +51,7 @@ spec:
       type: RollingUpdate
     image:
       repository: grafana/grafana
-      tag: 8.3.6
+      tag: 8.5.1
       sha: ""
       pullPolicy: IfNotPresent
     service:
