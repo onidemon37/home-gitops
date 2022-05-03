@@ -24,13 +24,13 @@ spec:
       retries: 3
   values:
     replicas: 1
-    env:
-      GF_EXPLORE_ENABLED: true
-      GF_PANELS_DISABLE_SANITIZE_HTML: true
-      GF_LOG_FILTERS: rendering:debug
-      GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
-    adminUser: admin
-    adminPassword: "${SECRET_GRAFANA_PASSWORD}"
+    #env:
+    #  GF_EXPLORE_ENABLED: true
+    #  GF_PANELS_DISABLE_SANITIZE_HTML: true
+    #  GF_LOG_FILTERS: rendering:debug
+    #  GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
+    #adminUser: admin
+    #adminPassword: "${SECRET_GRAFANA_PASSWORD}"
     grafana.ini:
       server:
         root_url: "https://grafana.${SECRET_DOMAIN}"
@@ -52,7 +52,6 @@ spec:
     image:
       repository: grafana/grafana
       tag: 8.5.1
-      sha: ""
       pullPolicy: IfNotPresent
     service:
       enabled: true
@@ -90,10 +89,10 @@ spec:
             access: proxy
             url: "http://${PROMETHEUS_DATASTORE_RPI}:9090"
             isDefault: true
-          - name: Prometheus-1
-            type: prometheus
-            access: proxy
-            url: http://${PROMETHEUS_DATASTORE}:9090
+          #- name: Prometheus-1
+          #  type: prometheus
+          #  access: proxy
+          #  url: http://${PROMETHEUS_DATASTORE}:9090
 
     dashboards:
       default:
@@ -111,60 +110,60 @@ spec:
         node-exporter-full:
           gnetId: 1860
           revision: 26
-          datasource: Prometheus-1
-        # Ref: https://grafana.com/grafana/dashboards/4475
-        traefik:
-          gnetId: 4475
-          revision: 5
-          datasource: Prometheus-1
-        ceph-cluster:
-          gnetId: 2842
-          revision: 14
-          datasource: Prometheus-1
-        # Ref: https://grafana.com/grafana/dashboards/5336
-        ceph-osd:
-          gnetId: 5336
-          revision: 5
-          datasource: Prometheus-1
-        ## Ref: https://grafana.com/grafana/dashboards/5342
-        ceph-pools:
-          gnetId: 5342
-          revision: 5
-          datasource: Prometheus-1
-        speedtest:
-          gnetId: 13665
-          revision: 1
           datasource: Prometheus
-        flux-cluster:
-          url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/cluster.json
-          datasource: Prometheus-1
-        flux-control-plane:
-          url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/control-plane.json
-          datasource: Prometheus-1
-    sidecar:
-      dashboards:
-        enabled: true
-        searchNamespace: ALL
-        provider:
-          foldersFromFilesStructure: true
-      datasources:
-        enabled: true
-        searchNamespace: ALL
-    plugins:
-      - natel-discrete-panel
-      - pr0ps-trackmap-panel
-      - grafana-piechart-panel
-      - vonage-status-panel
-      - grafana-worldmap-panel
-      - grafana-clock-panel
-    serviceMonitor:
-      enabled: true
-      create: true
-      autoMount: true
-    serviceAccount:
-      create: true
-      autoMount: true
-    persistence:
-      enabled: false
-    podAnnotations:
-      configmap.reloader.stakater.com/reload: "grafana"
+        # Ref: https://grafana.com/grafana/dashboards/4475
+        #traefik:
+        #  gnetId: 4475
+        #  revision: 5
+        #  datasource: Prometheus-1
+        #ceph-cluster:
+        #  gnetId: 2842
+        #  revision: 14
+        #  datasource: Prometheus-1
+        ## Ref: https://grafana.com/grafana/dashboards/5336
+        #ceph-osd:
+        #  gnetId: 5336
+        #  revision: 5
+        #  datasource: Prometheus-1
+        ### Ref: https://grafana.com/grafana/dashboards/5342
+        #ceph-pools:
+        #  gnetId: 5342
+        #  revision: 5
+        #  datasource: Prometheus-1
+        #speedtest:
+        #  gnetId: 13665
+        #  revision: 1
+        #  datasource: Prometheus
+        #flux-cluster:
+        #  url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/cluster.json
+        #  datasource: Prometheus-1
+        #flux-control-plane:
+        #  url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/control-plane.json
+        #  datasource: Prometheus-1
+    #sidecar:
+    #  dashboards:
+    #    enabled: true
+    #    searchNamespace: ALL
+    #    provider:
+    #      foldersFromFilesStructure: true
+    #  datasources:
+    #    enabled: true
+    #    searchNamespace: ALL
+    #plugins:
+    #  - natel-discrete-panel
+    #  - pr0ps-trackmap-panel
+    #  - grafana-piechart-panel
+    #  - vonage-status-panel
+    #  - grafana-worldmap-panel
+    #  - grafana-clock-panel
+    #serviceMonitor:
+    #  enabled: true
+    #  create: true
+    #  autoMount: true
+    #serviceAccount:
+    #  create: true
+    #  autoMount: true
+    #persistence:
+    #  enabled: false
+    #podAnnotations:
+    #  configmap.reloader.stakater.com/reload: "grafana"
