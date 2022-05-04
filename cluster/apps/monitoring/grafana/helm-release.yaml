@@ -51,7 +51,7 @@ spec:
       type: RollingUpdate
     image:
       repository: grafana/grafana
-      tag: 8.2.6
+      tag: 8.5.2
       pullPolicy: IfNotPresent
     service:
       enabled: true
