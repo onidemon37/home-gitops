@@ -23,12 +23,16 @@ spec:
     remediation:
       retries: 3
   values:
+    deploymentStrategy​:
+      type​: Recreate
     replicas: 1
-    #env:
-    #  GF_EXPLORE_ENABLED: true
-    #  GF_PANELS_DISABLE_SANITIZE_HTML: true
-    #  GF_LOG_FILTERS: rendering:debug
-    #  GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
+    env:
+      GF_EXPLORE_ENABLED: true
+      GF_PANELS_DISABLE_SANITIZE_HTML: true
+      GF_LOG_FILTERS: rendering:debug
+      GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
+    admin:
+      existingSecret: grafana-secret
     #adminUser: admin
     #adminPassword: "${SECRET_GRAFANA_PASSWORD}"
     grafana.ini:
@@ -47,12 +51,6 @@ spec:
         url: https://grafana.net
       auth.basic:
         disable_login_form: false
-    deploymentStrategy:
-      type: RollingUpdate
-    image:
-      repository: grafana/grafana
-      tag: 8.2.6
-      pullPolicy: IfNotPresent
     service:
       enabled: true
     ingress:
@@ -93,14 +91,8 @@ spec:
           #  type: prometheus
           #  access: proxy
           #  url: http://${PROMETHEUS_DATASTORE}:9090
-
     dashboards:
       default:
-        # Ref: https://grafana.com/grafana/dashboards/7845
-        #zfs:
-        #  gnetId: 7845
-        #  revision: 4
-        #  datasource: Prometheus
         # Ref: https://grafana.com/grafana/dashboards/14282
         cadvisor:
           gnetId: 14282
@@ -130,40 +122,27 @@ spec:
         #  gnetId: 5342
         #  revision: 5
         #  datasource: Prometheus-1
-        #speedtest:
-        #  gnetId: 13665
-        #  revision: 1
-        #  datasource: Prometheus
         #flux-cluster:
         #  url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/cluster.json
         #  datasource: Prometheus-1
         #flux-control-plane:
         #  url: https://raw.githubusercontent.com/fluxcd/flux2/main/manifests/monitoring/grafana/dashboards/control-plane.json
         #  datasource: Prometheus-1
-    #sidecar:
-    #  dashboards:
-    #    enabled: true
-    #    searchNamespace: ALL
-    #    provider:
-    #      foldersFromFilesStructure: true
-    #  datasources:
-    #    enabled: true
-    #    searchNamespace: ALL
-    #plugins:
-    #  - natel-discrete-panel
-    #  - pr0ps-trackmap-panel
-    #  - grafana-piechart-panel
-    #  - vonage-status-panel
-    #  - grafana-worldmap-panel
-    #  - grafana-clock-panel
-    #serviceMonitor:
-    #  enabled: true
-    #  create: true
-    #  autoMount: true
-    #serviceAccount:
-    #  create: true
-    #  autoMount: true
-    #persistence:
-    #  enabled: false
-    #podAnnotations:
-    #  configmap.reloader.stakater.com/reload: "grafana"
+    sidecar:
+      dashboards:
+        enabled: true
+        searchNamespace: ALL
+        provider:
+          foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+        searchNamespace: ALL
+    plugins:
+      - grafana-piechart-panel
+      - grafana-worldmap-panel
+      - grafana-clock-panel
+    serviceMonitor:
+      enabled: true
+    persistence:
+      enabled: true
+      existingClaim: grafana-config
