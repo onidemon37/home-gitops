@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-k8s
+  namespace: flux-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-k8s
+  template:
+    metadata:
+      labels:
+        app: prometheus-k8s
+      annotations:
+        appmesh.k8s.aws/sidecarInjectorWebhook: disabled
+        sidecar.istio.io/inject: "false"
+    spec:
+      serviceAccountName: prometheus-k8s
+      containers:
+        - name: prometheus-k8s
+          image: prom/prometheus:v2.33.3
+          imagePullPolicy: IfNotPresent
+          args:
+            - '--storage.tsdb.retention=2h'
+            - '--config.file=/etc/prometheus/prometheus.yml'
+          ports:
+            - containerPort: 9090
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/prometheus
+            - name: data-volume
+              mountPath: /prometheus/data
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus
+        - name: data-volume
+          emptyDir: {}

@@ -1,0 +1,104 @@
+---
+global:
+  scrape_interval: 10s
+scrape_configs:
+
+  # Kubernetes API
+  - job_name: kubernetes-apiserver
+    kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+            - default
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: kubernetes;https
+
+  # Kubernetes pods
+  - job_name: kubernetes-pods
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+      - action: replace
+        regex: (.+)
+        source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+          - __address__
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        source_labels:
+          - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+          - __meta_kubernetes_pod_name
+        target_label: pod
+
+  - job_name: 'thering: cadvisor'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['192.168.37.115:8088']
+
+  - job_name: 'thering: cadvisor'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['192.168.37.53:8088']
+
+  - job_name: 'ceph-exporter'
+    static_configs:
+      - targets: ['192.168.37.123:9128', '192.168.37.124:9128', '192.168.37.125:9128']
+        labels:
+          alias: ceph-exporter
+
+  - job_name: 'ceph-storage'
+    honor_labels: true
+    static_configs:
+      - targets: ['192.168.37.123:9283', '192.168.37.124:9283', '192.168.37.125:9283']
+
+  - job_name: 'hyperion'
+    static_configs:
+      - targets: ['192.168.37.53:9100']
+
+  - job_name: 'npbkp1'
+    static_configs:
+      - targets: ['192.168.37.109:9100']
+
+  - job_name: 'tycho-station'
+    static_configs:
+      - targets: ['192.168.37.112:9100']
+
+  - job_name: 'npdb'
+    static_configs:
+      - targets: ['192.168.37.114:9100']
+
+  - job_name: 'kubernetes-master-nodes'
+    static_configs:
+      - targets: ['192.168.37.120:9100', '192.168.37.121:9100', '192.168.37.122:9100']
+
+  - job_name: 'kubernetes-worker-nodes'
+    static_configs:
+      - targets: ['192.168.37.123:9100', '192.168.37.124:9100', '192.168.37.125:9100']
+
+  - job_name: 'nprpi-node1'
+    static_configs:
+      - targets: ['192.168.37.216:9100']
